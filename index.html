@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SSI Seteg – Sistema de Solicitação de Inovação</title>
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- ✅ CDN Obrigatória do Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="logo">
+          <img src="images/LOGO.png" alt="Logo SETEG" onerror="this.style.display='none'">
+        </div>
+        <h1>Sistema de Solicitação de Inovação</h1>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost btn-login-header" data-login-type="gestor">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+          Gestor
+        </button>
+        <button class="btn btn-ghost btn-login-header" data-login-type="desenvolvedor">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          Desenvolvedor
+        </button>
+        <button class="theme-toggle" id="themeToggle" title="Alternar tema claro/escuro">
+          <div class="theme-toggle-slider" id="themeSlider">
+            <!-- ícone lua (dark) -->
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </div>
+        </button>
+        <div id="userInfo" class="hidden">
+          <span class="user-badge" id="userBadge"></span>
+          <button class="btn btn-ghost-sm" onclick="logout()">Sair</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-content">
+
+    <!-- Card Nova Solicitação (oculto para perfis logados) -->
+    <div class="nova-solicitacao-card" data-restrito="true">
+      <div class="card-header">
+        <h2>💡 Nova Solicitação de Inovação</h2>
+        <button class="btn btn-primary" id="btnNovaSolicitacao" type="button">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span id="btnToggleText">Nova Solicitação</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Popup: Nova Solicitação (oculto para perfis logados) -->
+    <div class="modal-overlay" id="formModalOverlay" data-restrito="true">
+      <div class="modal modal-lg">
+        <form id="inovacaoForm" novalidate>
+          <div class="modal-header">
+            <h2>💡 Nova Solicitação de Inovação</h2>
+            <button class="modal-close" onclick="fecharFormulario(event)" type="button">&times;</button>
+          </div>
+
+          <div class="modal-body">
+            <div class="form-section-block">
+              <h4 class="form-subtitle">👤 Dados do Solicitante</h4>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label required">Nome do Solicitante</label>
+                  <input type="text" id="nomeSolicitante" class="form-control" name="nomeSolicitante" required placeholder="Ex.: Ana Silva">
+                </div>
+                <div class="form-group">
+                  <label class="form-label required">Setor</label>
+                  <select id="setorSolicitante" class="form-control" name="setor" required>
+                    <option value="">Selecione o setor</option>
+                    <option value="Administrativo">Administrativo</option>
+                    <option value="Financeiro">Financeiro</option>
+                    <option value="Projetos">Projetos</option>
+                    <option value="Inovação">Inovação</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section-block">
+              <h4 class="form-subtitle">💡 Detalhes da Solicitação</h4>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label required">Tipo de Solicitação</label>
+                  <select id="tipoInovacao" class="form-control" name="tipoInovacao" required onchange="toggleSistemaMelhoria(this.value)">
+                    <option value="">Selecione o tipo</option>
+                    <option value="Criação de Sistema">Criação de Sistema</option>
+                    <option value="Automação">Automação</option>
+                    <option value="Dashboard">Dashboard</option>
+                    <option value="Melhoria de Sistema">Melhoria de Sistema</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label required">Data Prevista</label>
+                  <input type="text" id="prazoEstimado" class="form-control mask-data" name="prazoEstimado" required placeholder="00/00/0000" inputmode="numeric" maxlength="10">
+                </div>
+                <div class="form-group full-width hidden" id="sistemaMelhoriaContainer">
+                  <label class="form-label required">Qual sistema deseja melhorar?</label>
+                  <input type="text" id="sistemaMelhoria" class="form-control" name="sistemaMelhoria" placeholder="Ex.: Sistema de Solicitação de ART, Clockify, Portal Financeiro...">
+                </div>
+                <div class="form-group full-width">
+                  <label class="form-label">Projeto Relacionado (Clockify)</label>
+                  <div class="clockify-input-wrapper">
+                    <input type="text" id="projetoClockify" class="form-control" name="projeto" placeholder="Buscar projeto no Clockify... (opcional)" autocomplete="off">
+                    <input type="hidden" id="projetoClockifyCodigo" class="form-control" name="projetoCodigo">
+                    <div class="clockify-suggestions" id="clockifySuggestionsProjeto"></div>
+                  </div>
+                </div>
+                <div class="form-group full-width">
+                  <label class="form-label required">Melhoria Gerada para a Empresa</label>
+                  <textarea id="melhoriaEsperada" class="form-control" name="melhoriaEsperada" rows="4" required placeholder="Descreva o ganho esperado: tempo economizado, redução de erros, melhoria de processo, etc."></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-ghost" onclick="fecharFormulario(event)">Cancelar</button>
+            <button type="reset" class="btn btn-ghost-outline">🗑 Limpar</button>
+            <button type="submit" class="btn btn-primary"> Enviar Solicitação</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Grid Principal: Tabela + KPIs -->
+    <div class="dashboard-layout">
+
+      <!-- TABELA -->
+      <div class="dashboard-table-area">
+        <div id="userWelcomeBanner" class="user-welcome-banner hidden"></div>
+
+        <div class="table-section-header">
+          <h2>Todas as Solicitações</h2>
+          <div class="filter-pills">
+            <button class="filter-pill active" data-status="todas">Todas</button>
+            <button class="filter-pill" data-status="Em Análise">Em Análise</button>
+            <button class="filter-pill" data-status="Aprovado">Aprovado</button>
+            <button class="filter-pill" data-status="Em Desenvolvimento">Em Desenvolvimento</button>
+            <button class="filter-pill" data-status="Em Testes">Em Testes</button>
+            <button class="filter-pill" data-status="Concluído">Concluído</button>
+            <button class="filter-pill" data-status="Reprovado">Reprovado</button>
+          </div>
+        </div>
+
+        <div class="table-filters-row">
+          <div class="filter-group">
+            <select class="form-control filter-select" id="filterSetor">
+              <option value="">Setor</option>
+              <option value="Administrativo">Administrativo</option>
+              <option value="Financeiro">Financeiro</option>
+              <option value="Projetos">Projetos</option>
+              <option value="Inovação">Inovação</option>
+            </select>
+            <select class="form-control filter-select" id="filterTipo">
+              <option value="">Tipo</option>
+              <option value="Criação de Sistema">Criação de Sistema</option>
+              <option value="Automação">Automação</option>
+              <option value="Dashboard">Dashboard</option>
+              <option value="Melhoria de Sistema">Melhoria de Sistema</option>
+            </select>
+          </div>
+          <div class="search-group">
+            <input type="text" class="form-control search-input" id="searchInput" placeholder="🔍 Buscar solicitante, setor, desenvolvedor, projeto ou ID...">
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <div class="table-scroll">
+            <table class="art-table" id="artTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Solicitante</th>
+                  <th>Setor</th>
+                  <th>Tipo</th>
+                  <th>Data Prevista</th>
+                  <th>Status</th>
+                  <th>Desenvolvedor</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="artTableBody"></tbody>
+            </table>
+          </div>
+          <div class="table-empty" id="tableEmpty">
+            <div class="empty-state">
+              <div class="empty-icon">💡</div>
+              <p>Nenhuma solicitação encontrada.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pagination-container" id="paginationContainer">
+          <div class="pagination-info" id="paginationInfo"></div>
+          <div class="pagination-controls">
+            <button class="btn-pagination" id="btnFirst">⏮</button>
+            <button class="btn-pagination" id="btnPrev">◀</button>
+            <div class="pagination-numbers" id="paginationNumbers"></div>
+            <button class="btn-pagination" id="btnNext">▶</button>
+            <button class="btn-pagination" id="btnLast">⏭</button>
+          </div>
+          <div class="pagination-per-page">
+            <label>Por página:</label>
+            <select id="perPage">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- KPIs LATERAL DIREITA -->
+      <aside class="kpi-sidebar">
+        <div class="kpi-grid">
+          <div class="kpi-card kpi-analise">
+            <div class="kpi-card-body">
+              <span class="kpi-label">Em Análise</span>
+              <span class="kpi-desc">Aguardando avaliação do gestor</span>
+            </div>
+            <span class="kpi-value" id="kpiEmAnalise">0</span>
+          </div>
+          <div class="kpi-card kpi-aprovado">
+            <div class="kpi-card-body">
+              <span class="kpi-label">Aprovado</span>
+              <span class="kpi-desc">Aguardando atribuição de desenvolvedor</span>
+            </div>
+            <span class="kpi-value" id="kpiAprovado">0</span>
+          </div>
+          <div class="kpi-card kpi-desenvolvimento">
+            <div class="kpi-card-body">
+              <span class="kpi-label">Em Desenvolvimento</span>
+              <span class="kpi-desc">Em execução pelo desenvolvedor</span>
+            </div>
+            <span class="kpi-value" id="kpiEmDesenvolvimento">0</span>
+          </div>
+          <div class="kpi-card kpi-testes">
+            <div class="kpi-card-body">
+              <span class="kpi-label">Em Testes</span>
+              <span class="kpi-desc">Em homologação</span>
+            </div>
+            <span class="kpi-value" id="kpiEmTestes">0</span>
+          </div>
+          <div class="kpi-card kpi-concluido">
+            <div class="kpi-card-body">
+              <span class="kpi-label">Concluído</span>
+              <span class="kpi-desc">Entregue com sucesso</span>
+            </div>
+            <span class="kpi-value" id="kpiConcluido">0</span>
+          </div>
+          <div class="kpi-card kpi-reprovado">
+            <div class="kpi-card-body">
+              <span class="kpi-label">Reprovado</span>
+              <span class="kpi-desc">Não aprovado pelo gestor</span>
+            </div>
+            <span class="kpi-value" id="kpiReprovado">0</span>
+          </div>
+          <div class="kpi-card kpi-total">
+            <div class="kpi-card-body">
+              <span class="kpi-label">Total de Solicitações</span>
+              <span class="kpi-desc">Todas as solicitações cadastradas</span>
+            </div>
+            <span class="kpi-value" id="kpiTotal">0</span>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+
+    <footer class="app-footer">
+      <span>Versão 1.0.0 • © Seteg Soluções Ambientais Ltda • 2026</span>
+    </footer>
+  </div>
+
+<!-- MODAL DE LOGIN -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2 id="loginModalTitle">Acesso Restrito</h2>
+      <button class="modal-close" onclick="fecharModalLogin(event)" type="button">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p id="loginTipoTexto" class="login-info">Digite a senha para acessar</p>
+
+      <div class="form-group">
+        <label class="form-label" id="loginSenhaLabel">Código de Acesso</label>
+        <div class="password-input-wrapper">
+          <input type="password" id="senhaAcesso" class="form-control" placeholder="Digite o código de acesso" autocomplete="off">
+          <button type="button" id="btnToggleSenha" class="btn-toggle-senha" onclick="toggleSenha()" title="Mostrar/Ocultar">
+            <svg id="iconSenhaVer" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg id="iconSenhaOcultar" class="hidden" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <p id="loginError" class="error-msg hidden">Código incorreto. Tente novamente.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="fecharModalLogin(event)">Cancelar</button>
+      <button class="btn btn-primary" onclick="fazerLogin()">Acessar</button>
+    </div>
+  </div>
+</div>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2 id="modalTitle">Detalhes</h2>
+        <button class="modal-close" onclick="fecharModal(event)" type="button">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer" id="modalFooter"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="editModalOverlay">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 id="editModalTitle">Atribuir Desenvolvedor</h2>
+        <button class="modal-close" onclick="fecharEditModal(event)" type="button">&times;</button>
+      </div>
+      <div class="modal-body" id="editModalBody"></div>
+      <div class="modal-footer" id="editModalFooter"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="statusModalOverlay">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 id="statusModalTitle">Alterar Status</h2>
+        <button class="modal-close" onclick="fecharStatusModal(event)" type="button">&times;</button>
+      </div>
+      <div class="modal-body" id="statusModalBody"></div>
+      <div class="modal-footer" id="statusModalFooter"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="reprovarModalOverlay">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>Reprovar Solicitação</h2>
+        <button class="modal-close" onclick="fecharReprovarModal(event)" type="button">&times;</button>
+      </div>
+      <div class="modal-body" id="reprovarModalBody"></div>
+      <div class="modal-footer" id="reprovarModalFooter"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: Comentário -->
+  <div class="modal-overlay" id="comentarioModalOverlay">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>Adicionar Comentário</h2>
+        <button class="modal-close" onclick="fecharComentarioModal(event)" type="button">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group hidden" id="comentarioNomeWrap">
+          <label class="form-label required">Seu Nome</label>
+          <input type="text" id="comentarioNome" class="form-control" placeholder="Digite seu nome">
+        </div>
+        <div class="form-group">
+          <label class="form-label required">Comentário</label>
+          <textarea id="comentarioTexto" class="form-control" rows="4" placeholder="Escreva seu comentário sobre esta solicitação..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="fecharComentarioModal(event)">Cancelar</button>
+        <button class="btn btn-primary" onclick="salvarComentario()">Enviar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ MODAL DE CONFIRMAÇÃO CUSTOMIZADO -->
+  <div class="modal-overlay" id="confirmModalOverlay">
+    <div class="modal modal-sm confirm-modal">
+      <div class="modal-header">
+        <h2 id="confirmModalTitle">Confirmação</h2>
+        <button class="modal-close" onclick="fecharConfirmModal()" type="button">&times;</button>
+      </div>
+      <div class="modal-body confirm-modal-body">
+        <div class="confirm-icon">⚠️</div>
+        <p id="confirmModalMessage">Tem certeza?</p>
+      </div>
+      <div class="modal-footer confirm-modal-footer">
+        <button class="btn btn-ghost" onclick="confirmarAcaoCancel()">Cancelar</button>
+        <button class="btn btn-primary confirm-modal-ok" id="confirmModalOk" onclick="confirmarAcaoOk()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
