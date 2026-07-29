@@ -895,12 +895,10 @@ function renderTableRow(s, perms) {
     }
   }
 
-  if (perms.tipoDesenvolvedor) {
-    if (s.status === 'Em Desenvolvimento') {
-      a += `<button class="btn-icon btn-icon-green" title="Finalizar Desenvolvimento (enviar para testes)" onclick="event.stopPropagation();finalizarDesenvolvimento('${id}')">${ICONS.finalizar}</button>`;
-    } else if (s.status === 'Em Testes') {
-      a += `<button class="btn-icon btn-icon-green" title="Finalizar Testes (concluir)" onclick="event.stopPropagation();finalizarTestes('${id}')">${ICONS.finalizar}</button>`;
-    }
+  if (perms.tipoDesenvolvedor && ['Em Desenvolvimento', 'Em Testes'].includes(s.status)) {
+    const emTestes = s.status === 'Em Testes';
+    a += `<button class="btn-icon btn-icon-amber" title="Finalizar Desenvolvimento (enviar para testes)" ${emTestes ? 'disabled' : ''} onclick="event.stopPropagation();finalizarDesenvolvimento('${id}')">${ICONS.finalizar}</button>`;
+    a += `<button class="btn-icon btn-icon-green" title="Finalizar Testes (concluir)" ${!emTestes ? 'disabled' : ''} onclick="event.stopPropagation();finalizarTestes('${id}')">${ICONS.finalizar}</button>`;
   }
 
   a += `<button class="btn-icon btn-icon-muted" title="Comentar" onclick="event.stopPropagation();abrirComentarioModal('${id}')">${ICONS.comentar}</button>`;
@@ -916,7 +914,7 @@ function renderTableRow(s, perms) {
     <td><span class="proto-badge">${sf(id)}</span></td>
     <td>${sf(s.nomeSolicitante)}</td>
     <td>${sf(s.setor)}</td>
-    <td><span class="conselho-badge">${sf(s.tipoInovacao)}</span></td>
+    <td>${sf(s.tipoInovacao)}</td>
     <td>${sf(s.prazoEstimado)}</td>
     <td><span class="status-badge ${sc}">${sf(s.status)}</span></td>
     <td>${sf(s.desenvolvedor_responsavel)}</td>

@@ -535,16 +535,6 @@ body::before {
 /* Reprovado → Vermelho */
 .status-reprovado { background: rgba(231,76,60,0.12); color: #E74C3C; border-color: rgba(231,76,60,0.4); }
 
-.conselho-badge {
-  display: inline-block;
-  padding: 0.12rem 0.45rem;
-  border-radius: 6px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  background: var(--blue);
-  color: #fff;
-}
-
 /* ========== AÇÕES ========== */
 .table-actions { display: flex; gap: 0.35rem; flex-wrap: wrap; justify-content: center; }
 
@@ -571,11 +561,16 @@ body::before {
 .btn-icon-green { color: var(--green) !important; border-color: rgba(108,194,74,0.35) !important; background: rgba(108,194,74,0.15) !important; }
 .btn-icon-green:hover { background: var(--green) !important; color: #fff !important; }
 
+.btn-icon-amber { color: #D4A017 !important; border-color: rgba(212,160,23,0.4) !important; background: rgba(212,160,23,0.15) !important; }
+.btn-icon-amber:hover { background: #D4A017 !important; color: #000 !important; }
+
 .btn-icon-purple { color: var(--purple) !important; border-color: rgba(155,89,182,0.35) !important; background: rgba(155,89,182,0.12) !important; }
 .btn-icon-purple:hover { background: var(--purple) !important; color: #fff !important; }
 
 .btn-icon-muted { color: var(--text-muted) !important; border-color: rgba(150,150,150,0.3) !important; background: rgba(150,150,150,0.1) !important; }
 .btn-icon-muted:hover { background: rgba(150,150,150,0.3) !important; color: var(--text-primary) !important; }
+
+.btn-icon:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
 
 /* ========== PAGINAÇÃO ========== */
 .pagination-container {
