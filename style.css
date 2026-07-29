@@ -427,60 +427,54 @@ body::before {
 .table-section-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.85rem 1.25rem;
+  padding: 0.85rem 1rem;
   border-bottom: 1px solid var(--border-color);
   background: var(--bg-secondary);
-  flex-wrap: wrap;
-  gap: 0.6rem;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
   flex-shrink: 0;
 }
 
-.table-section-header h2 { font-size: 0.95rem; font-weight: 600; color: #fff; }
+.table-section-header h2 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 .filter-pills {
   display: flex;
-  gap: 0.3rem;
-  flex-wrap: wrap;
+  gap: 0.25rem;
+  flex-wrap: nowrap;
   align-items: center;
+  flex-shrink: 0;
 }
 .filter-pill {
-  padding: 0.25rem 0.7rem;
+  padding: 0.22rem 0.55rem;
   border: 1px solid var(--border-color);
   border-radius: 20px;
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font);
-  font-size: 0.72rem;
+  font-size: 0.66rem;
   font-weight: 500;
   cursor: pointer;
   transition: var(--transition);
   white-space: nowrap;
   line-height: 1.4;
+  flex-shrink: 0;
 }
 .filter-pill:hover { background: var(--bg-card-hover); color: #fff; }
 .filter-pill.active { background: var(--blue); border-color: var(--blue); color: #fff; }
 
-/* Notebook: pills um pouco menores para não encher 2 linhas */
-@media (max-width: 1280px) and (min-width: 769px) {
-  .filter-pill { font-size: 0.67rem; padding: 0.2rem 0.55rem; }
-  .filter-pills { gap: 0.25rem; }
-}
-
-.table-filters-row {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.65rem 1.25rem;
-  border-bottom: 1px solid var(--border-color);
-  flex-wrap: wrap;
-  flex-shrink: 0;
-}
-
-.filter-group { display: flex; gap: 0.4rem; }
-.filter-select { padding: 0.3rem 0.5rem; font-size: 0.75rem; min-width: 100px; }
-.search-group { margin-left: auto; }
-.search-input { min-width: 220px; padding: 0.4rem 0.7rem; font-size: 0.8rem; }
+.filter-group { display: flex; gap: 0.35rem; flex-shrink: 0; }
+.filter-select { padding: 0.3rem 0.4rem; font-size: 0.72rem; width: 74px; min-width: 0; flex-shrink: 1; }
+.search-group { flex: 1 1 110px; min-width: 0; margin-left: 0.35rem; }
+.search-input { width: 100%; min-width: 0; padding: 0.35rem 0.6rem; font-size: 0.76rem; }
 
 .table-wrapper { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
 .table-scroll { flex: 1; overflow-y: auto; min-height: 0; }
@@ -1035,12 +1029,12 @@ body::before {
   .dashboard-table-area { overflow: visible; min-height: auto; }
   .table-wrapper { overflow: visible; }
   .table-scroll { overflow-x: auto; overflow-y: visible; }
-  .table-section-header { flex-direction: column; align-items: flex-start; }
+  .table-section-header { flex-direction: column; align-items: stretch; overflow-x: visible; }
   .filter-pills { width: 100%; overflow-x: auto; flex-wrap: nowrap; }
   .filter-pill { flex-shrink: 0; }
-  .table-filters-row { flex-direction: column; align-items: stretch; }
-  .filter-group { flex-direction: column; }
-  .search-group { margin-left: 0; }
+  .filter-group { flex-direction: column; width: 100%; }
+  .filter-select { width: 100%; min-width: 0; }
+  .search-group { margin-left: 0; width: 100%; }
   .search-input { min-width: 100%; }
   .form-grid { grid-template-columns: 1fr; }
   .pagination-container { flex-direction: column; }
