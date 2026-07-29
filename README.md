@@ -34,6 +34,9 @@ Solicitação"**, que abre um formulário em popup com:
 | Data Prevista | texto mascarado `00/00/0000` | data esperada de conclusão |
 | Projeto Relacionado (Clockify) | autocomplete | opcional — busca projetos direto na API do Clockify |
 | Melhoria Gerada para a Empresa | textarea | obrigatório — qual o ganho esperado |
+| Diretório para Salvar Material | texto (link) | opcional — pasta (SharePoint/Drive) onde o material do projeto será salvo |
+| Material de Apoio/Inspiração | textarea | opcional — referências, exemplos, mockups |
+| Observações | textarea | opcional |
 
 Ao enviar, a solicitação recebe um ID sequencial (`INOV-001`, `INOV-002`, ...)
 e entra automaticamente com status **Em Análise**, para o Gestor avaliar.
@@ -147,6 +150,9 @@ e abrir `http://localhost:PORTA` no navegador.
 | `prazoEstimado` | text | Data prevista, formato `dd/mm/aaaa` |
 | `projeto` / `projetoCodigo` | text | Projeto do Clockify vinculado (opcional) |
 | `melhoriaEsperada` | text | Ganho esperado para a empresa |
+| `diretorioMaterial` | text | Link da pasta onde o material do projeto será salvo (opcional) |
+| `materialApoio` | text | Referências/material de apoio ou inspiração (opcional) |
+| `observacoes` | text | Observações gerais (opcional) |
 | `status` | text | Em Análise / Aprovado / Reprovado / Em Desenvolvimento / Em Testes / Concluído |
 | `desenvolvedor_responsavel` | text | Nome do dev atribuído |
 | `reprovacao_justificativa` | text | Motivo, quando reprovado |

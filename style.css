@@ -925,6 +925,8 @@ body::before {
 .detalhe-field.full { grid-column: 1 / -1; }
 .detalhe-label { display: block; font-size: 0.65rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.2rem; }
 .detalhe-value { display: block; font-size: 0.85rem; color: var(--text-primary); font-weight: 500; word-break: break-word; white-space: pre-wrap; }
+.detalhe-value a { color: #5aafe0; text-decoration: underline; word-break: break-all; }
+.detalhe-value a:hover { color: #82c8f0; }
 
 .detalhe-section-title { background: rgba(58,101,176,0.15); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.55rem 0.75rem; grid-column: 1 / -1; }
 .detalhe-section-title span { font-size: 0.78rem; font-weight: 600; color: var(--orange); text-transform: uppercase; letter-spacing: 0.04em; }

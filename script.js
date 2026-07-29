@@ -1004,6 +1004,14 @@ async function verDetalhes(id) {
 
   if (mt) mt.textContent = 'Detalhes da Solicitação';
   const sf = str => escapeHtml(str || '—');
+  const sfLink = str => {
+    const val = (str || '').trim();
+    if (!val) return '—';
+    if (/^https?:\/\//i.test(val)) {
+      return `<a href="${escapeHtml(val)}" target="_blank" rel="noopener">${escapeHtml(val)}</a>`;
+    }
+    return escapeHtml(val);
+  };
 
   let h = `
     <div class="detalhe-grid">
@@ -1056,6 +1064,18 @@ async function verDetalhes(id) {
         <span class="detalhe-label">Melhoria Gerada para a Empresa</span>
         <span class="detalhe-value">${sf(s.melhoriaEsperada)}</span>
       </div>
+      ${s.diretorioMaterial ? `<div class="detalhe-field full">
+        <span class="detalhe-label">Diretório para Salvar Material</span>
+        <span class="detalhe-value">${sfLink(s.diretorioMaterial)}</span>
+      </div>` : ''}
+      ${s.materialApoio ? `<div class="detalhe-field full">
+        <span class="detalhe-label">Material de Apoio/Inspiração</span>
+        <span class="detalhe-value">${sf(s.materialApoio)}</span>
+      </div>` : ''}
+      ${s.observacoes ? `<div class="detalhe-field full">
+        <span class="detalhe-label">Observações</span>
+        <span class="detalhe-value">${sf(s.observacoes)}</span>
+      </div>` : ''}
     </div>`;
 
   if (s.reprovacao_justificativa) {
@@ -1717,7 +1737,7 @@ function setupUppercaseInputs() {
   // de reprovação, comentário, etc.), não só os que já existem na carga.
   document.addEventListener('input', e => {
     const el = e.target;
-    if (!el.matches?.('input[type="text"].form-control, textarea.form-control')) return;
+    if (!el.matches?.('input[type="text"].form-control:not(.no-upper), textarea.form-control:not(.no-upper)')) return;
 
     const start = el.selectionStart;
     const end = el.selectionEnd;
