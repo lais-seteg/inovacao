@@ -134,6 +134,16 @@ function formatarDataBR(d) {
   }
 }
 
+// Converte "dd/mm/aaaa" em Date; retorna null se a string não for uma data real.
+function parseDataBR(str) {
+  const m = (str || '').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!m) return null;
+  const [, d, mo, y] = m.map(Number);
+  const data = new Date(y, mo - 1, d);
+  if (data.getFullYear() !== y || data.getMonth() !== mo - 1 || data.getDate() !== d) return null;
+  return data;
+}
+
 function formatarDataHoraBR(d) {
   if (!d) return '—';
   try {
@@ -449,6 +459,16 @@ function configurarMascaraData() {
 async function salvarSolicitacao() {
   if (!validarFormulario()) {
     showToast('Preencha todos os campos obrigatórios.', 'error');
+    return;
+  }
+
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  const prazoField = document.getElementById('prazoEstimado');
+  const prazoData = parseDataBR(prazoField?.value.trim());
+  if (!prazoData || prazoData < hoje) {
+    prazoField?.classList.add('error');
+    showToast('A Data Prevista não pode ser anterior à data da solicitação.', 'error');
     return;
   }
 
@@ -1057,21 +1077,6 @@ async function verDetalhes(id) {
       <div class="history-action">${sf(x.acao)}${x.detalhes ? ' – ' + sf(x.detalhes) : ''}</div>
     </div>`;
   });
-
-  const diaCriacao = s.dataSolicitacao
-    ? new Date(s.dataSolicitacao + 'T00:00:00').toLocaleDateString('pt-BR', {
-        timeZone: CONFIG.TIMEZONE,
-        weekday: 'long',
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      })
-    : '—';
-  h += `<div class="history-item history-item-criacao">
-    <div class="history-date">${diaCriacao}</div>
-    <div class="history-user">${sf(s.nomeSolicitante)}</div>
-    <div class="history-action">Solicitação criada</div>
-  </div>`;
 
   h += `</div>`;
 
