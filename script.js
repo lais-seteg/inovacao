@@ -465,7 +465,7 @@ async function salvarSolicitacao() {
     const resultado = await salvarSolicitacaoDB(dados);
     if (!resultado?._local) {
       showToast(`${novoId} criada e enviada para análise!`, 'success');
-      await adicionarHistoricoDB(novoId, 'Solicitação Criada', 'Aguardando análise do gestor');
+      await adicionarHistoricoDB(novoId, 'Solicitação Criada', 'Aguardando análise do gestor', dados.nomeSolicitante, 'solicitante');
     }
 
     AppState.solicitacoes = await carregarSolicitacoesDB();
@@ -1708,20 +1708,21 @@ function configurarClockifyAutocomplete() {
 
 // ========== UPPERCASE EM TEMPO REAL (nome do solicitante) ==========
 function setupUppercaseInputs() {
-  const inputs = document.querySelectorAll('input[type="text"].form-control');
+  // Delegado no document: cobre também campos criados depois (modais
+  // de reprovação, comentário, etc.), não só os que já existem na carga.
+  document.addEventListener('input', e => {
+    const el = e.target;
+    if (!el.matches?.('input[type="text"].form-control, textarea.form-control')) return;
 
-  inputs.forEach(input => {
-    input.addEventListener('input', function() {
-      const start = this.selectionStart;
-      const end = this.selectionEnd;
-      const value = this.value;
-      const upper = value.toUpperCase();
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const value = el.value;
+    const upper = value.toUpperCase();
 
-      if (value !== upper) {
-        this.value = upper;
-        this.setSelectionRange(start, end);
-      }
-    });
+    if (value !== upper) {
+      el.value = upper;
+      el.setSelectionRange(start, end);
+    }
   });
 }
 
